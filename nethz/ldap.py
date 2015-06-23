@@ -4,7 +4,8 @@ import ssl
 import ldap3
 
 
-_CERT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "ldap-root.pem"))
+_CERT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                             "ldap-root.pem"))
 ENFORCE_TLS = ldap3.Tls(validate=ssl.CERT_REQUIRED, ca_certs_file=_CERT_PATH)
 
 BIND_DN = "cn=%(user)s,ou=%(group)s,ou=nethz,ou=id,ou=auth,o=ethz,c=ch"
@@ -47,7 +48,7 @@ class _SearchableLdap(object):
         """Queries the ETH LDAP server for the given search string.
 
         Args:
-            query_string (str): LDAP-encoded query string to use for the search.
+            query_string (str): LDAP-encoded query string for the search.
 
         Returns:
             A list of search results (dict of LDAP attributes).
@@ -129,8 +130,10 @@ class AuthenticatedLdap(_BaseLdap, _SearchableLdap):
                              user=user_dn,
                              password=password,
                              auto_bind=ldap3.AUTO_BIND_TLS_BEFORE_BIND,
-                             raise_exceptions=True)
-        except ldap3.LDAPInvalidCredentialsResult:
+                             raise_exceptions=True,
+                             authentication=ldap3.AUTH_SIMPLE)
+        except (ldap3.LDAPInvalidCredentialsResult,
+                ldap3.LDAPPasswordIsMandatoryError):
             return False
 
         return True

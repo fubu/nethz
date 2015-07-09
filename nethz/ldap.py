@@ -132,8 +132,7 @@ class AuthenticatedLdap(_BaseLdap, _SearchableLdap):
                              auto_bind=ldap3.AUTO_BIND_TLS_BEFORE_BIND,
                              raise_exceptions=True,
                              authentication=ldap3.AUTH_SIMPLE)
-        except (ldap3.LDAPInvalidCredentialsResult,
-                ldap3.LDAPPasswordIsMandatoryError):
+        except ldap3.LDAPException:
             return False
 
         return True

@@ -8,5 +8,6 @@ setup(
     version="1.0",
     author="Fubu",
     description=("Library to easily access ETH ldap"),
-    packages=find_packages()
+    packages=find_packages(),
+    install_requires=['ldap3>=0.9.8.2']
 )

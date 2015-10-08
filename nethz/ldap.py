@@ -44,7 +44,7 @@ class _SearchableLdap(object):
     bind_dn = None
     bind_pw = None
 
-    def search(self, query_string, limit=None):
+    def search(self, query_string, attributes=ldap3.ALL_ATTRIBUTES):
         """Queries the ETH LDAP server for the given search string.
 
         Args:
@@ -65,13 +65,13 @@ class _SearchableLdap(object):
 
         conn = ldap3.Connection(self.server_pool, **search_opts)
 
-        if not conn.search(self.SEARCH_DN, query_string,
-                           attributes=ldap3.ALL_ATTRIBUTES,
-                           paged_size=limit):
-            # The search returned no results
-            return []
+        res = conn.extend.standard.paged_search(
+            self.SEARCH_DN, query_string,
+            attributes=attributes,
+            paged_size=300,
+            generator=False)
 
-        return [res['attributes'] for res in conn.response]
+        return [item['attributes'] for item in res]
 
 
 class AnonymousLdap(_BaseLdap, _SearchableLdap):

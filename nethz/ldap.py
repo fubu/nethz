@@ -51,7 +51,7 @@ class _SearchableLdap(object):
             query_string (str): LDAP-encoded query string for the search.
 
         Returns:
-            A list of search results (dict of LDAP attributes).
+            generator: search results (dict of LDAP attributes).
         """
         search_opts = dict(read_only=True,
                            auto_bind=ldap3.AUTO_BIND_NO_TLS,
@@ -69,9 +69,9 @@ class _SearchableLdap(object):
             self.SEARCH_DN, query_string,
             attributes=attributes,
             paged_size=300,
-            generator=False)
+            generator=True)
 
-        return [item['attributes'] for item in res]
+        return (item['attributes'] for item in res)
 
 
 class AnonymousLdap(_BaseLdap, _SearchableLdap):

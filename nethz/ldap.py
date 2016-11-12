@@ -140,7 +140,7 @@ class AuthenticatedLdap(_BaseLdap, _SearchableLdap):
                              auto_bind=ldap3.AUTO_BIND_TLS_BEFORE_BIND,
                              raise_exceptions=True,
                              authentication=ldap3.AUTH_SIMPLE)
-        except ldap3.LDAPException:
+        except ldap3.core.exceptions.LDAPException:
             return False
 
         return True

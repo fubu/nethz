@@ -38,9 +38,13 @@ class _BaseLdap(object):
         servers = []
         for host in hosts:
             servers.append(ldap3.Server(
-                host, tls=ENFORCE_TLS if "ldaps://" in host else None))
+                host,
+                connect_timeout=10,  # Wait up to 10 seconds
+                tls=ENFORCE_TLS if "ldaps://" in host else None))
 
-        self.server_pool = ldap3.ServerPool(servers, active=True, exhaust=True)
+        # Only try to reach each server once before reporting error
+        # (To avoid getting stuck in a loop waiting forever)
+        self.server_pool = ldap3.ServerPool(servers, active=1, exhaust=True)
 
 
 class _SearchableLdap(object):
@@ -139,7 +143,7 @@ class AuthenticatedLdap(_BaseLdap, _SearchableLdap):
                              password=password,
                              auto_bind=ldap3.AUTO_BIND_TLS_BEFORE_BIND,
                              raise_exceptions=True,
-                             authentication=ldap3.AUTH_SIMPLE)
+                             authentication=ldap3.SIMPLE)
         except ldap3.core.exceptions.LDAPException:
             return False
 

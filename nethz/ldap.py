@@ -137,13 +137,15 @@ class AuthenticatedLdap(_BaseLdap, _SearchableLdap):
         user_dn = BIND_DN % dict(user=username, group="users")
 
         try:
+            # Try to authentivate, i.e. bind to server
+            # On success, immediately unbind to avoid dangling connections
             ldap3.Connection(self.server_pool,
                              read_only=True,
                              user=user_dn,
                              password=password,
                              auto_bind=ldap3.AUTO_BIND_TLS_BEFORE_BIND,
                              raise_exceptions=True,
-                             authentication=ldap3.SIMPLE)
+                             authentication=ldap3.SIMPLE).unbind()
         except ldap3.core.exceptions.LDAPException:
             return False
 

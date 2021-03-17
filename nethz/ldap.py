@@ -137,7 +137,7 @@ class AuthenticatedLdap(_BaseLdap, _SearchableLdap):
                              read_only=True,
                              user=user_dn,
                              password=password,
-                             auto_bind=True
+                             auto_bind=True,
                              raise_exceptions=True,
                              authentication=ldap3.SIMPLE).unbind()
         except ldap3.core.exceptions.LDAPException:

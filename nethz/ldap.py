@@ -11,10 +11,6 @@ import ssl
 import ldap3
 
 
-_CERT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                             "ldap-root.pem"))
-ENFORCE_TLS = ldap3.Tls(validate=ssl.CERT_REQUIRED, ca_certs_file=_CERT_PATH)
-
 BIND_DN = "cn=%(user)s,ou=%(group)s,ou=nethz,ou=id,ou=auth,o=ethz,c=ch"
 
 
@@ -40,7 +36,7 @@ class _BaseLdap(object):
             servers.append(ldap3.Server(
                 host,
                 connect_timeout=10,  # Wait up to 10 seconds
-                tls=ENFORCE_TLS if "ldaps://" in host else None))
+            ))
 
         # Only try to reach each server once before reporting error
         # (To avoid getting stuck in a loop waiting forever)
@@ -64,15 +60,13 @@ class _SearchableLdap(object):
         Returns:
             generator: search results (dict of LDAP attributes).
         """
-        search_opts = dict(read_only=True,
-                           auto_bind=ldap3.AUTO_BIND_NO_TLS,
-                           raise_exceptions=True,
-                           lazy=True)
+        search_opts = dict(auto_bind=True,
+                           read_only=True,
+                           raise_exceptions=True)
 
         if None not in (self.bind_dn, self.bind_pw):
             search_opts.update(user=self.bind_dn,
-                               password=self.bind_pw,
-                               auto_bind=ldap3.AUTO_BIND_TLS_BEFORE_BIND)
+                               password=self.bind_pw)
 
         conn = ldap3.Connection(self.server_pool, **search_opts)
 
@@ -143,7 +137,7 @@ class AuthenticatedLdap(_BaseLdap, _SearchableLdap):
                              read_only=True,
                              user=user_dn,
                              password=password,
-                             auto_bind=ldap3.AUTO_BIND_TLS_BEFORE_BIND,
+                             auto_bind=True
                              raise_exceptions=True,
                              authentication=ldap3.SIMPLE).unbind()
         except ldap3.core.exceptions.LDAPException:
